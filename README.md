@@ -11,8 +11,13 @@ The repository includes:
 
 # Instance Segmentation Samples on Paper Dataset
 The model is trained based on pre-trained weights for MS COCO.
+### Sample 1
 ![Mask RCNN on Video](assets/v1.gif)
+
+### Sample 2
 ![Mask RCNN on Video](assets/v2.gif)
+
+### Sample 3
 ![Mask RCNN on Video](assets/v3.gif)
 
 # Training on Your own Dataset
