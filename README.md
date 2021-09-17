@@ -28,7 +28,10 @@ To train the model you need to modify two classes in ```paper.py```:
 
 ![Example of data directory](assets/dir.png)
 
-Now you should be able to start training on your own dataset! Training parapeters are mainly included in function ```train``` in ```paper.py```.
+You can take a look or download our dataset from here
+[Paper Dataset](https://drive.google.com/drive/folders/14lZV6gsvwlNGUaQfzdeOwQFhpr1AivJ4)
+
+OR you can start training on your own dataset! Training parapeters are mainly included in function ```train``` in ```paper.py```.
 ```
 #Train a new model starting from pre-trained COCO weights
 python paper.py train --dataset=/home/.../mask_rcnn/datasets/4points/ --weights=coco
@@ -56,6 +59,8 @@ python paper.py splash --weights=last --image=/home/...../*.jpg
 #Detect and color splash on a video with a specific pre-trained weights of yours.
 python sugery.py splash --weights=/home/.../logs/mask_rcnn_paper_0030.h5  --video=..\Mask_RCNN\input\test.mp4
 ```
+NOTE: In order to achieve better results you need to make sure all four corners of the paper are visible through the webcam. For guidance, a sample video demonstrating the process can be found here [Setup Demo](https://drive.google.com/drive/folders/1_eyF5mr4zdSE1XfdjNmkNpOdnUmwKnVr)
+
 * [prediction.ipynb](prediction.ipynb) provides step-by-step prediction and visualization on your own dataset. You can also roughly evaluate the model with metrics of overall accuracy and precision.
 
 # Configurations
