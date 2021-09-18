@@ -12,13 +12,13 @@ The repository includes:
 # Instance Segmentation Samples on Paper Dataset
 The model is trained based on pre-trained weights for MS COCO.
 ### Sample 1
-![](assets/v1.mp4)
+https://user-images.githubusercontent.com/44399842/133878173-360bb445-9773-4ca9-9001-6444b171bb16.mp4
 
 ### Sample 2
-![](assets/v2.mp4)
+https://user-images.githubusercontent.com/44399842/133878176-8554afc3-89e7-4f5e-ab4a-655deeb46612.mp4
 
 ### Sample 3
-![](assets/v3.mp4)
+https://user-images.githubusercontent.com/44399842/133878181-e29ec419-f0d2-4e44-9878-a368cbb2ef38.mp4
 
 # Training on Your own Dataset
 To train the model you need to modify two classes in ```paper.py```:
