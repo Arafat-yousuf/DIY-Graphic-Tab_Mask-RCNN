@@ -12,17 +12,13 @@ The repository includes:
 # Instance Segmentation Samples on Paper Dataset
 The model is trained based on pre-trained weights for MS COCO.
 ### Sample 1
-![Mask RCNN on Video](assets/v1.mp4)
-<video width="320" height="240" controls>
-  <source src="video.mov" type="assets/v1.mp4">
-</video>
-
+![](assets/v1.mp4)
 
 ### Sample 2
-![Mask RCNN on Video](assets/v2.mp4)
+![](assets/v2.mp4)
 
 ### Sample 3
-![Mask RCNN on Video](assets/v3.mp4)
+![](assets/v3.mp4)
 
 # Training on Your own Dataset
 To train the model you need to modify two classes in ```paper.py```:
