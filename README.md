@@ -13,6 +13,10 @@ The repository includes:
 The model is trained based on pre-trained weights for MS COCO.
 ### Sample 1
 ![Mask RCNN on Video](assets/v1.mp4)
+<video width="320" height="240" controls>
+  <source src="video.mov" type="assets/v1.mp4">
+</video>
+
 
 ### Sample 2
 ![Mask RCNN on Video](assets/v2.mp4)
