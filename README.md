@@ -57,7 +57,7 @@ You can make prediction on a specific image, images in a specific directory or e
 python paper.py splash --weights=last --image=/home/...../*.jpg
 
 #Detect and color splash on a video with a specific pre-trained weights of yours.
-python sugery.py splash --weights=/home/.../logs/mask_rcnn_paper_0030.h5  --video=..\Mask_RCNN\input\test.mp4
+python paper.py splash --weights=/home/.../logs/mask_rcnn_paper_0030.h5  --video=..\Mask_RCNN\input\test.mp4
 ```
 NOTE: In order to achieve better results you need to make sure all four corners of the paper are visible through the webcam. For guidance, a sample video demonstrating the process can be found here [Setup Demo](https://drive.google.com/drive/folders/1_eyF5mr4zdSE1XfdjNmkNpOdnUmwKnVr)
 

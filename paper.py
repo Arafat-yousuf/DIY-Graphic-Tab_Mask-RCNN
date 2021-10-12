@@ -27,6 +27,7 @@ import os
 import sys
 import json
 import glob
+import pafy
 import cv2
 import time
 import datetime
@@ -708,8 +709,8 @@ def generate_warp(image, mask):
 #         vwriter.release()
 #     print("Saved to ", file_name)
 
-def detect_and_warp(model, image_path=None, video_path=None):
-    assert image_path or video_path
+def detect_and_warp(model, image_path=None, video_path=None, yt_link = None):
+    assert image_path or video_path or yt_link
 
     # Image or video?
     if image_path:
@@ -818,7 +819,112 @@ def detect_and_warp(model, image_path=None, video_path=None):
                     vwriter.write(res)
             count += 1
         vwriter.release()
-    print("Saved to ", file_name)
+        print("Saved to ", file_name)
+
+    elif yt_link:
+        import cv2
+        url = yt_link
+        video = pafy.new(url)
+        best = video.getbest(preftype="mp4")
+        width = 500
+        height = 888
+        capture = cv2.VideoCapture(best.url)
+        count = 0
+        success = True
+        sm1 = [0, 0]
+        succ = False
+        while True:
+            grabbed, image = capture.read()
+            if not grabbed:
+                print("failed to grab frame")
+                break
+            orig = image
+            success = grabbed
+            if success:
+                # OpenCV returns images as BGR, convert to RGB
+                image = image[..., ::-1]
+                # Detect objects
+                if count % 60 ==0:
+                    r = model.detect([image], verbose=0)[0]
+                # warp and threshold
+                warp = generate_warp(image, r['masks'])
+                
+                # RGB -> BGR to save image to video
+                warp = warp[..., ::-1]
+                print(warp.shape)
+                gry = cv2.cvtColor(warp, cv2.COLOR_BGR2GRAY)
+                kernel = np.ones((8,8), np.uint8) 
+                warp = cv2.dilate(gry,kernel)
+                gry = cv2.GaussianBlur(gry, (5, 5), 0)
+                edged = cv2.Canny(gry, 75, 200)
+                print(edged.shape)
+                
+                # TEST 01
+                cnts = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+                cnts = imutils.grab_contours(cnts)
+                cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:5]
+                # loop over the contours
+                for c in cnts:
+                    peri = cv2.arcLength(c, True)
+                    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+	                # if our approximated contour has four points, then we
+	                # can assume that we have found our screen
+                    if len(approx) == 4:
+                        screenCnt = approx
+                        succ = True
+                        break
+                edged = cv2.cvtColor(edged, cv2.COLOR_GRAY2BGR)
+
+                if succ:
+                    cv2.drawContours(edged, [screenCnt], -1, (0, 255, 0), 2)
+                    # print("edged shape--",edged.shape)
+                    # edged = cv2.resize(edged, (width,height), interpolation = cv2.INTER_AREA)
+                    # TEST 01 END
+
+
+                    # edged = cv2.cvtColor(edged, cv2.COLOR_GRAY2BGR)
+                    # Add image to video writer
+                    # screenCnt1 = screenCnt
+                    # print("screenCnt---",screenCnt)
+                    sm = sum(screenCnt)
+                    sm = sm[0]
+                    # print("sum----",sm)
+                    # screenCnt = orient(screenCnt)
+                    # print("Here lies Bellman--",screenCnt)
+                    if (((sm[0]<sm1[0]-50) or (sm[0] > sm1[0] + 50)) or ((sm[1] < sm1[1]-50) or (sm[1] > sm1[1] + 50))):   
+                        screenCnt1 = screenCnt
+                        sm1 = sm
+                    warped = four_point_transform(orig, screenCnt1.reshape(4, 2))
+                    # print("sum1---",sm1) 
+                    # print("screenCnt1---",screenCnt1) 
+                    # convert the warped image to grayscale, then threshold it
+                    # to give it that 'black and white' paper effect
+                    # warped = cv2.cvtColor(warped)
+                    # T = threshold_local(warped, 11, offset = 10, method = "gaussian")
+                    # warped = (warped > T).astype("uint8") * 255
+                    # print("warped111 shape--",warped.shape)
+                    warped = cv2.resize(warped, (width,height), interpolation = cv2.INTER_AREA)
+                    # print("warpedres shape--",warped.shape)
+                    res = hand_remove(warped)
+                    cv2.imshow('test',res)
+            count += 1
+
+            k = cv2.waitKey(1)
+            if k%256 == 27:
+                # ESC pressed
+                print("Escape hit, closing...")
+                break
+            # elif k%256 == 32:
+            #     # SPACE pressed
+            #     img_name = "opencv_frame_{}.png".format(img_counter)
+            #     cv2.imwrite(img_name, frame)
+            #     print("{} written!".format(img_name))
+            #     img_counter += 1
+
+        capture.release()
+
+        cv2.destroyAllWindows()
+
 
 
 ############################################################
@@ -944,14 +1050,17 @@ if __name__ == '__main__':
     parser.add_argument('--video', required=False,
                         metavar="path or URL to video",
                         help='Video to apply the warp and threshold on')
+    parser.add_argument('--rtyt', required=False,
+                        metavar="path or URL to video",
+                        help='Video to apply the warp and threshold on')
     args = parser.parse_args()
 
     # Validate arguments
     if args.command == "train":
         assert args.dataset, "Argument --dataset is required for training"
     elif args.command == "warp":
-        assert args.image or args.video,\
-               "Provide --image or --video to apply warp and threshold"
+        assert args.image or args.video or args.rtyt,\
+               "Provide --image or --video or --rtyt to apply warp and threshold"
 
     print("Weights: ", args.weights)
     print("Dataset: ", args.dataset)
@@ -1008,7 +1117,8 @@ if __name__ == '__main__':
         train(model)
     elif args.command == "warp":
         detect_and_warp(model, image_path=args.image,
-                                video_path=args.video)
+                                video_path=args.video,
+                                yt_link=args.rtyt)
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'warp'".format(args.command))
