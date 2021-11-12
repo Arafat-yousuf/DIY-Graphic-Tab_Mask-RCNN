@@ -37,7 +37,7 @@ from matplotlib import pyplot as plt
 import imutils
 
 # Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
+ROOT_DIR = os.path.abspath("../")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
@@ -185,7 +185,7 @@ class PaperConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 2
+    IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # Background + paper
@@ -203,62 +203,62 @@ class PaperConfig(Config):
 
 class PaperDataset(utils.Dataset):
 
-    # def load_paper(self, dataset_dir, subset):
-    #     """Load a subset of the Paper dataset.
-    #     dataset_dir: Root directory of the dataset.
-    #     subset: Subset to load: train or val
-    #     """
-    #     # Add classes. We have only one class to add.
-    #     self.add_class("paper", 1, "paper")
+    def load_paper(self, dataset_dir, subset):
+        """Load a subset of the Paper dataset.
+        dataset_dir: Root directory of the dataset.
+        subset: Subset to load: train or val
+        """
+        # Add classes. We have only one class to add.
+        self.add_class("paper", 1, "paper")
 
-    #     # Train or validation dataset?
-    #     assert subset in ["train", "val"]
-    #     dataset_dir = os.path.join(dataset_dir, subset)
+        # Train or validation dataset?
+        assert subset in ["train", "val"]
+        dataset_dir = os.path.join(dataset_dir, subset)
 
-    #     img_dir = "image/"
-    #     txt_dir = "text/"
+        img_dir = "image/"
+        txt_dir = "text/"
 
-    #     data_path = os.path.join(dataset_dir, img_dir)
-    #     txt_dir = os.path.join(dataset_dir, txt_dir)
+        data_path = os.path.join(dataset_dir, img_dir)
+        txt_dir = os.path.join(dataset_dir, txt_dir)
 
-    #     # files = glob.glob(data_path + '/*')
-    #     files = [os.path.normpath(i) for i in glob.glob(data_path + '/*')]
-    #     # print(files)
-    #     #files.sort() #We sort the images in alphabetical order to match them to the xml files containing the annotations of the bounding boxes
+        # files = glob.glob(data_path + '/*')
+        files = [os.path.normpath(i) for i in glob.glob(data_path + '/*')]
+        # print(files)
+        #files.sort() #We sort the images in alphabetical order to match them to the xml files containing the annotations of the bounding boxes
 
-    #     for f1 in files:
-    #         img = cv2.imread(f1)
-    #         height, width = img.shape[:2]
-    #         # print(height, width)
+        for f1 in files:
+            img = cv2.imread(f1)
+            height, width = img.shape[:2]
+            # print(height, width)
 
-    #         pp = f1
+            pp = f1
             
-    #         pp = pp.split('\\')
+            pp = pp.split('\\')
             
-    #         pp = pp[8]
+            pp = pp[8]
             
-    #         pp = pp.split('.')
-    #         pp = pp[0]
+            pp = pp.split('.')
+            pp = pp[0]
             
-    #         img_name = pp + '.jpg'
-    #         print(img_name)
+            img_name = pp + '.jpg'
+            print("LINE 244 of paper.py---",img_name)
 
-    #         p = txt_dir + pp + '.txt'
-    #         image_path = data_path + pp + '.jpg'
-    #         file1 = open(p, "r")
-    #         Fc = file1.read()
-    #         Fc = json.loads(Fc)
-    #         Fc = np.array(Fc)
-    #         Fc = Fc.flatten()
-    #         Fc = np.int32(Fc)
-    #         # print(Fc)
+            p = txt_dir + pp + '.txt'
+            image_path = data_path + pp + '.jpg'
+            file1 = open(p, "r")
+            Fc = file1.read()
+            Fc = json.loads(Fc)
+            Fc = np.array(Fc)
+            Fc = Fc.flatten()
+            Fc = np.int32(Fc)
+            # print(Fc)
 
-    #         self.add_image(
-    #             "paper",
-    #             image_id=img_name,  # use file name as a unique image id
-    #             path=image_path,
-    #             width=width, height=height,
-    #             polygons=Fc)
+            self.add_image(
+                "paper",
+                image_id=img_name,  # use file name as a unique image id
+                path=image_path,
+                width=width, height=height,
+                polygons=Fc)
 
     def load_pp(self, img_name, image_path, width, height, Fc):
         """Load a subset of the Paper dataset.
@@ -296,7 +296,7 @@ class PaperDataset(utils.Dataset):
         mask = np.zeros([info["height"], info["width"],  1], dtype=np.uint8)
         ycord = [info["polygons"][0],info["polygons"][2],info["polygons"][4],info["polygons"][6]]
         xcord = [info["polygons"][1],info["polygons"][3],info["polygons"][5],info["polygons"][7]]
-        print(xcord)
+        print("LINE 299 of paper.py---",xcord)
         rr, cc = skimage.draw.polygon(xcord, ycord)
         mask[rr, cc, 0] = 1
 
@@ -816,7 +816,8 @@ def detect_and_warp(model, image_path=None, video_path=None, yt_link = None):
                     warped = cv2.resize(warped, (width,height), interpolation = cv2.INTER_AREA)
                     # print("warpedres shape--",warped.shape)
                     res = hand_remove(warped)
-                    vwriter.write(res)
+                    warp = cv2.resize(warp, (width,height), interpolation = cv2.INTER_AREA)
+                    vwriter.write(warp)
             count += 1
         vwriter.release()
         print("Saved to ", file_name)

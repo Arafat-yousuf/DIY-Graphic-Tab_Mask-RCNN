@@ -52,12 +52,12 @@ class_names = ['BG', 'paper']
 ```
 You can make prediction on a specific image, images in a specific directory or even a video, by
 ```
-#Detect and color splash on a image with the last model you trained.
+#Detect and warp on a image with the last model you trained.
 #This will find the last trained weights in the model directory.
-python paper.py splash --weights=last --image=/home/...../*.jpg
+python paper.py warp --weights=last --image=/home/...../*.jpg
 
-#Detect and color splash on a video with a specific pre-trained weights of yours.
-python paper.py splash --weights=/home/.../logs/mask_rcnn_paper_0030.h5  --video=..\Mask_RCNN\input\test.mp4
+#Detect and warp on a video with a specific pre-trained weights of yours.
+python paper.py warp --weights=/home/.../logs/mask_rcnn_paper_0030.h5  --video=..\Mask_RCNN\input\test.mp4
 ```
 NOTE: In order to achieve better results you need to make sure all four corners of the paper are visible through the webcam. For guidance, a sample video demonstrating the process can be found here [Setup Demo](https://drive.google.com/drive/folders/1_eyF5mr4zdSE1XfdjNmkNpOdnUmwKnVr)
 
