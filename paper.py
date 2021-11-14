@@ -709,8 +709,8 @@ def generate_warp(image, mask):
 #         vwriter.release()
 #     print("Saved to ", file_name)
 
-def detect_and_warp(model, image_path=None, video_path=None, yt_link = None):
-    assert image_path or video_path or yt_link
+def detect_and_warp(model, image_path=None, video_path=None, yt_link = None,lefty = False):
+    assert image_path or video_path or yt_link or lefty
 
     # Image or video?
     if image_path:
@@ -749,6 +749,9 @@ def detect_and_warp(model, image_path=None, video_path=None, yt_link = None):
             print("frame: ", count)
             # Read next image
             success, image = vcapture.read()
+            if lefty:
+                image = cv2.flip(image, 1)
+                # print("LINE 754-- lefty")
             orig = image
             if success:
                 # OpenCV returns images as BGR, convert to RGB
@@ -816,8 +819,10 @@ def detect_and_warp(model, image_path=None, video_path=None, yt_link = None):
                     warped = cv2.resize(warped, (width,height), interpolation = cv2.INTER_AREA)
                     # print("warpedres shape--",warped.shape)
                     res = hand_remove(warped)
-                    warp = cv2.resize(warp, (width,height), interpolation = cv2.INTER_AREA)
-                    vwriter.write(warp)
+                    # warp = cv2.resize(warp, (width,height), interpolation = cv2.INTER_AREA)
+                    if lefty:
+                        res = cv2.flip(res, 1)
+                    vwriter.write(res)
             count += 1
         vwriter.release()
         print("Saved to ", file_name)
@@ -1045,6 +1050,9 @@ if __name__ == '__main__':
                         default=DEFAULT_LOGS_DIR,
                         metavar="/path/to/logs/",
                         help='Logs and checkpoints directory (default=logs/)')
+    parser.add_argument('--lefty', required=False,
+                        metavar="is left handed?",
+                        help='Define if user is left handed (default= false )')
     parser.add_argument('--image', required=False,
                         metavar="path or URL to image",
                         help='Image to apply the warp and threshold on')
@@ -1119,7 +1127,8 @@ if __name__ == '__main__':
     elif args.command == "warp":
         detect_and_warp(model, image_path=args.image,
                                 video_path=args.video,
-                                yt_link=args.rtyt)
+                                yt_link=args.rtyt,
+                                lefty=args.lefty)
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'warp'".format(args.command))
